@@ -84,10 +84,10 @@ contract('Conference', function (accounts) {
             assert.equal(data[3].toNumber(), talk1_EndTime, "end time name must be " + talk1_EndTime);
 
             assert.equal(data[4][0], speaker1_account, "speaker 1 account must be " + speaker1_account);
-            assert.equal(web3.toAscii(data[5][0].replace(/[0]+$/, '')), speaker1_fullName, "speaker 1 full name must be " + speaker1_fullName);
+            assert.equal(web3.utils.toAscii(data[5][0].replace(/[0]+$/, '')), speaker1_fullName, "speaker 1 full name must be " + speaker1_fullName);
 
             assert.equal(data[4][1], speaker2_account, "speaker 2 account must be " + speaker2_account);
-            assert.equal(web3.toAscii(data[5][1].replace(/[0]+$/, '')), speaker2_fullName, "speaker 2 full name must be " + speaker2_fullName);
+            assert.equal(web3.utils.toAscii(data[5][1].replace(/[0]+$/, '')), speaker2_fullName, "speaker 2 full name must be " + speaker2_fullName);
 
             return contractInstance.getTalksPerSpeaker(speaker1_account);
         }).then(function(data) {
@@ -146,7 +146,7 @@ contract('Conference', function (accounts) {
             assert.equal(data[3].toNumber(), talk2_EndTime, "end time name must be " + talk2_EndTime);
 
             assert.equal(data[4][0], speaker2_account, "speaker account must be " + speaker2_account);
-            assert.equal(web3.toAscii(data[5][0].replace(/[0]+$/, '')), speaker2_fullName, "speaker full name must be " + speaker2_fullName);
+            assert.equal(web3.utils.toAscii(data[5][0].replace(/[0]+$/, '')), speaker2_fullName, "speaker full name must be " + speaker2_fullName);
 
             return contractInstance.getTalksPerSpeaker(speaker2_account);
         }).then(function(data) {
@@ -200,7 +200,7 @@ contract('Conference', function (accounts) {
             assert.equal(data[3].toNumber(), talk3_EndTime, "end time name must be " + talk3_EndTime);
 
             assert.equal(data[4][0], speaker1_account, "speaker 1 account must be " + speaker1_account);
-            assert.equal(web3.toAscii(data[5][0].replace(/[0]+$/, '')), speaker1_fullName, "speaker full name must be " + speaker1_fullName);
+            assert.equal(web3.utils.toAscii(data[5][0].replace(/[0]+$/, '')), speaker1_fullName, "speaker full name must be " + speaker1_fullName);
 
             return contractInstance.getTalksPerSpeaker(speaker1_account);
         }).then(function(data) {
@@ -239,12 +239,12 @@ contract('Conference', function (accounts) {
         return conference.deployed().then(function(instance) {
             contractInstance = instance;
 
-            balanceAttendeeBefore = web3.fromWei(web3.eth.getBalance(attendee1), "ether");
-            balanceContractBefore = web3.fromWei(web3.eth.getBalance(conference.address), "ether");
+            balanceAttendeeBefore = web3.utils.fromWei(web3.eth.getBalance(attendee1), "ether");
+            balanceContractBefore = web3.utils.fromWei(web3.eth.getBalance(conference.address), "ether");
 
             return contractInstance.register(attendeed1_FullName, {
                 from: attendee1,
-                value: web3.toWei(registrationPrice, "ether"),
+                value: web3.utils.toWei(registrationPrice, "ether"),
                 gas: 500000
             });
         }).then(function(receipt) {
@@ -257,11 +257,11 @@ contract('Conference', function (accounts) {
         }).then(function(data) {
             assert.equal(data, true, "attendee should be registered");
 
-            balanceAttendeeAfter = web3.fromWei(web3.eth.getBalance(attendee1), "ether");
-            balanceContractAfter = web3.fromWei(web3.eth.getBalance(conference.address), "ether");
+            balanceAttendeeAfter = web3.utils.fromWei(web3.eth.getBalance(attendee1), "ether");
+            balanceContractAfter = web3.utils.fromWei(web3.eth.getBalance(conference.address), "ether");
 
-            assert(web3.toDecimal(balanceContractAfter) == web3.toDecimal(balanceContractBefore + registrationPrice), "contract should have earned " + registrationPrice + " ETH")
-            assert(web3.toDecimal(balanceAttendeeAfter) <= web3.toDecimal(balanceAttendeeBefore - registrationPrice), "attendee should have spent " + registrationPrice + " ETH")
+            assert(web3.utils.toDecimal(balanceContractAfter) == web3.utils.toDecimal(balanceContractBefore + registrationPrice), "contract should have earned " + registrationPrice + " ETH")
+            assert(web3.utils.toDecimal(balanceAttendeeAfter) <= web3.utils.toDecimal(balanceAttendeeBefore - registrationPrice), "attendee should have spent " + registrationPrice + " ETH")
         });
     });
 
@@ -269,12 +269,12 @@ contract('Conference', function (accounts) {
         return conference.deployed().then(function(instance) {
             contractInstance = instance;
 
-            balanceAttendeeBefore = web3.fromWei(web3.eth.getBalance(attendee2), "ether");
-            balanceContractBefore = web3.fromWei(web3.eth.getBalance(conference.address), "ether");
+            balanceAttendeeBefore = web3.utils.fromWei(web3.eth.getBalance(attendee2), "ether");
+            balanceContractBefore = web3.utils.fromWei(web3.eth.getBalance(conference.address), "ether");
 
             return contractInstance.register(attendeed2_FullName, {
                 from: attendee2,
-                value: web3.toWei(registrationPrice, "ether"),
+                value: web3.utils.toWei(registrationPrice, "ether"),
                 gas: 500000
             });
         }).then(function(receipt) {
@@ -287,11 +287,11 @@ contract('Conference', function (accounts) {
         }).then(function(data) {
             assert.equal(data, true, "attendee should be registered");
 
-            balanceAttendeeAfter = web3.fromWei(web3.eth.getBalance(attendee2), "ether");
-            balanceContractAfter = web3.fromWei(web3.eth.getBalance(conference.address), "ether");
+            balanceAttendeeAfter = web3.utils.fromWei(web3.eth.getBalance(attendee2), "ether");
+            balanceContractAfter = web3.utils.fromWei(web3.eth.getBalance(conference.address), "ether");
 
-            assert(web3.toDecimal(balanceContractAfter) == web3.toDecimal(balanceContractBefore) + web3.toDecimal(registrationPrice), "contract should have earned " + registrationPrice + " ETH")
-            assert(web3.toDecimal(balanceAttendeeAfter) <= web3.toDecimal(balanceAttendeeBefore) - web3.toDecimal(registrationPrice), "attendee should have spent " + registrationPrice + " ETH")
+            assert(web3.utils.toDecimal(balanceContractAfter) == web3.utils.toDecimal(balanceContractBefore) + web3.utils.toDecimal(registrationPrice), "contract should have earned " + registrationPrice + " ETH")
+            assert(web3.utils.toDecimal(balanceAttendeeAfter) <= web3.utils.toDecimal(balanceAttendeeBefore) - web3.utils.toDecimal(registrationPrice), "attendee should have spent " + registrationPrice + " ETH")
         });
     });
 });
