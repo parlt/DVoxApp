@@ -3,10 +3,10 @@ var conference = artifacts.require("./Conference.sol");
 
 // Test suite
 contract('Conference', function (accounts) {
-    var contractInstance;
-    var registrationPrice = 1.8;
-    var attendee = accounts[1];
-    var attendeeFullName = "Rick Deckard";
+    let contractInstance,
+        registrationPrice = 1.8,
+        attendee = accounts[1],
+        attendeeFullName = "Rick Deckard";
 
 
     // Test case: do not register an attendee sending the wrong value

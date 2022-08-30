@@ -3,51 +3,53 @@ var conference = artifacts.require("./conference.sol");
 
 // Test suite
 contract('Conference', function (accounts) {
-    var contractInstance;
-    var registrationPrice = 1.8;
-    var owner = accounts[0];
-    var talk1_Title = "Talk 1";
-    var talk1_Location = "Room 1";
-    var talk1_StartTime = new Date('11/07/2017 09:30').getTime();
-    var talk1_EndTime = new Date('11/07/2017 12:30').getTime();
-    var talk2_Title = "Talk 2";
-    var talk2_Location = "Room 2";
-    var talk2_StartTime = new Date('11/07/2017 09:30').getTime();
-    var talk2_EndTime = new Date('11/07/2017 12:30').getTime();
-    var talk3_Title = "Talk 3";
-    var talk3_Location = "Room 3";
-    var talk3_StartTime = new Date('11/07/2017 13:30').getTime();
-    var talk3_EndTime = new Date('11/07/2017 16:30').getTime();
-    var speaker1_account = accounts[1];
-    var speaker1_fullName = "John Doe";
-    var speaker2_account = accounts[2];
-    var speaker2_fullName = "Claire Smith";
-    var attendee1 = accounts[3];
-    var attendeed1_FullName = "Rick Deckard";
-    var attendee2 = accounts[4];
-    var attendeed2_FullName = "Niander Wallace";
-    var balanceAttendeeBefore, balanceAttendeeAfter;
-    var balanceContractBefore, balanceContractAfter;
+    let contractInstance,
+        registrationPrice = 1.8,
+        owner = accounts[0],
+        talk1_Title = "Talk 1",
+        talk1_Location = "Room 1",
+        talk1_StartTime = new Date('11/07/2017 09:30').getTime(),
+        talk1_EndTime = new Date('11/07/2017 12:30').getTime(),
+        talk2_Title = "Talk 2",
+        talk2_Location = "Room 2",
+        talk2_StartTime = new Date('11/07/2017 09:30').getTime(),
+        talk2_EndTime = new Date('11/07/2017 12:30').getTime(),
+        talk3_Title = "Talk 3",
+        talk3_Location = "Room 3",
+        talk3_StartTime = new Date('11/07/2017 13:30').getTime(),
+        talk3_EndTime = new Date('11/07/2017 16:30').getTime(),
+        speaker1_account = accounts[1],
+        speaker1_fullName = "John Doe",
+        speaker2_account = accounts[2],
+        speaker2_fullName = "Claire Smith",
+        attendee1 = accounts[3],
+        attendeed1_FullName = "Rick Deckard",
+        attendee2 = accounts[4],
+        attendeed2_FullName = "Niander Wallace",
+        balanceAttendeeBefore,
+        balanceAttendeeAfter,
+        balanceContractBefore,
+        balanceContractAfter;
 
 
-    it("should be initialized with empty values", function() {
-        return conference.deployed().then(function(instance) {
+    it("should be initialized with empty values", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
             return contractInstance.getNumberOfTalks();
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, 0x0, "number of talks must be zero");
         });
     });
 
-    it("should let us add a first talk", function() {
-        return conference.deployed().then(function(instance) {
+    it("should let us add a first talk", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
 
-            var speakersAddress = [];
+            let speakersAddress = [];
             speakersAddress.push(speaker1_account);
             speakersAddress.push(speaker2_account);
 
-            var speakersNames = [];
+            let speakersNames = [];
             speakersNames.push(speaker1_fullName);
             speakersNames.push(speaker2_fullName);
 
@@ -60,7 +62,7 @@ contract('Conference', function (accounts) {
                 speakersNames, {
                     from: owner
                 });
-        }).then(function(receipt) {
+        }).then(function (receipt) {
             //check event
             assert.equal(receipt.logs.length, 1, "should have received one event");
             assert.equal(receipt.logs[0].event, "AddTalkEvent", "event name should be AddTalkEvent");
@@ -70,11 +72,11 @@ contract('Conference', function (accounts) {
             assert.equal(receipt.logs[0].args._endTime.toNumber(), talk1_EndTime, "end time name must be " + talk1_EndTime);
 
             return contractInstance.getNumberOfTalks.call();
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, 1, "number of talks must be one");
 
             return contractInstance.getTalk(1);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data[4].length, 2, "should have received two speakers");
 
@@ -90,27 +92,27 @@ contract('Conference', function (accounts) {
             assert.equal(web3.utils.toAscii(data[5][1].replace(/[0]+$/, '')), speaker2_fullName, "speaker 2 full name must be " + speaker2_fullName);
 
             return contractInstance.getTalksPerSpeaker(speaker1_account);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data.length, 1, "should have only one talk");
             assert.equal(data[0], 1, "talk id must be one");
 
             return contractInstance.getTalksPerSpeaker(speaker2_account);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data.length, 1, "should have only one talk");
             assert.equal(data[0], 1, "talk id must be one");
         });
     });
 
-    it("should let us add a second talk", function() {
-        return conference.deployed().then(function(instance) {
+    it("should let us add a second talk", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
 
-            var speakersAddress = [];
+            let speakersAddress = [];
             speakersAddress.push(speaker2_account);
 
-            var speakersNames = [];
+            let speakersNames = [];
             speakersNames.push(speaker2_fullName);
 
             return contractInstance.addTalk(
@@ -122,7 +124,7 @@ contract('Conference', function (accounts) {
                 speakersNames, {
                     from: owner
                 });
-        }).then(function(receipt) {
+        }).then(function (receipt) {
             //check event
             assert.equal(receipt.logs.length, 1, "should have received one event");
             assert.equal(receipt.logs[0].event, "AddTalkEvent", "event name should be AddTalkEvent");
@@ -132,11 +134,11 @@ contract('Conference', function (accounts) {
             assert.equal(receipt.logs[0].args._endTime.toNumber(), talk2_EndTime, "end time name must be " + talk2_EndTime);
 
             return contractInstance.getNumberOfTalks();
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, 2, "number of talks must be two");
 
             return contractInstance.getTalk(2);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data[4].length, 1, "should have received one speaker");
 
@@ -149,7 +151,7 @@ contract('Conference', function (accounts) {
             assert.equal(web3.utils.toAscii(data[5][0].replace(/[0]+$/, '')), speaker2_fullName, "speaker full name must be " + speaker2_fullName);
 
             return contractInstance.getTalksPerSpeaker(speaker2_account);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data.length, 2, "should have two talks");
             assert.equal(data[0], 1, "talk id must be one");
@@ -157,14 +159,14 @@ contract('Conference', function (accounts) {
         });
     });
 
-    it("should let us add a third talk", function() {
-        return conference.deployed().then(function(instance) {
+    it("should let us add a third talk", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
 
-            var speakersAddress = [];
+            let speakersAddress = [];
             speakersAddress.push(speaker1_account);
 
-            var speakersNames = [];
+            let speakersNames = [];
             speakersNames.push(speaker1_fullName);
 
             return contractInstance.addTalk(
@@ -176,7 +178,7 @@ contract('Conference', function (accounts) {
                 speakersNames, {
                     from: owner
                 });
-        }).then(function(receipt) {
+        }).then(function (receipt) {
             //check event
             assert.equal(receipt.logs.length, 1, "should have received one event");
             assert.equal(receipt.logs[0].event, "AddTalkEvent", "event name should be AddTalkEvent");
@@ -186,11 +188,11 @@ contract('Conference', function (accounts) {
             assert.equal(receipt.logs[0].args._endTime.toNumber(), talk3_EndTime, "end time name must be " + talk3_EndTime);
 
             return contractInstance.getNumberOfTalks();
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, 3, "number of talks must be three");
 
             return contractInstance.getTalk(3);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data[4].length, 1, "should have received one speaker");
 
@@ -203,7 +205,7 @@ contract('Conference', function (accounts) {
             assert.equal(web3.utils.toAscii(data[5][0].replace(/[0]+$/, '')), speaker1_fullName, "speaker full name must be " + speaker1_fullName);
 
             return contractInstance.getTalksPerSpeaker(speaker1_account);
-        }).then(function(data) {
+        }).then(function (data) {
 
             assert.equal(data.length, 2, "should have two talks");
             assert.equal(data[0], 1, "talk id must be 1");
@@ -211,12 +213,12 @@ contract('Conference', function (accounts) {
         });
     });
 
-    it("should let us cancel the second talk", function() {
-        return conference.deployed().then(function(instance) {
+    it("should let us cancel the second talk", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
 
             return contractInstance.cancelTalk(2, {from: owner});
-        }).then(function(receipt) {
+        }).then(function (receipt) {
             //check event
             assert.equal(receipt.logs.length, 1, "should have received one event");
             assert.equal(receipt.logs[0].event, "CancelTalkEvent", "event name should be CancelTalkEvent");
@@ -226,17 +228,17 @@ contract('Conference', function (accounts) {
             assert.equal(receipt.logs[0].args._endTime.toNumber(), talk2_EndTime, "end time name must be " + talk2_EndTime);
 
             return contractInstance.isTalkCanceled(2);
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, true, "talk should be canceled");
             return contractInstance.getTalks(true);
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data.length, 1, "one talk should be canceled");
             assert.equal(data[0].toNumber(), 2, "talk 2 should be canceled");
         });
     });
 
-    it("should register a first attendee", function() {
-        return conference.deployed().then(function(instance) {
+    it("should register a first attendee", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
 
             balanceAttendeeBefore = web3.utils.fromWei(web3.eth.getBalance(attendee1), "ether");
@@ -247,14 +249,14 @@ contract('Conference', function (accounts) {
                 value: web3.utils.toWei(registrationPrice, "ether"),
                 gas: 500000
             });
-        }).then(function(receipt) {
+        }).then(function (receipt) {
             //check event
             assert.equal(receipt.logs.length, 1, "should have received one event");
             assert.equal(receipt.logs[0].event, "RegisterEvent", "event name should be RegisterEvent");
             assert.equal(receipt.logs[0].args._name, attendeed1_FullName, "full name must be " + attendeed1_FullName);
 
             return contractInstance.isRegistered(attendee1);
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, true, "attendee should be registered");
 
             balanceAttendeeAfter = web3.utils.fromWei(web3.eth.getBalance(attendee1), "ether");
@@ -265,8 +267,8 @@ contract('Conference', function (accounts) {
         });
     });
 
-    it("should register a second attendee", function() {
-        return conference.deployed().then(function(instance) {
+    it("should register a second attendee", function () {
+        return conference.deployed().then(function (instance) {
             contractInstance = instance;
 
             balanceAttendeeBefore = web3.utils.fromWei(web3.eth.getBalance(attendee2), "ether");
@@ -277,14 +279,14 @@ contract('Conference', function (accounts) {
                 value: web3.utils.toWei(registrationPrice, "ether"),
                 gas: 500000
             });
-        }).then(function(receipt) {
+        }).then(function (receipt) {
             //check event
             assert.equal(receipt.logs.length, 1, "should have received one event");
             assert.equal(receipt.logs[0].event, "RegisterEvent", "event name should be RegisterEvent");
             assert.equal(receipt.logs[0].args._name, attendeed2_FullName, "full name must be " + attendeed2_FullName);
 
             return contractInstance.isRegistered(attendee2);
-        }).then(function(data) {
+        }).then(function (data) {
             assert.equal(data, true, "attendee should be registered");
 
             balanceAttendeeAfter = web3.utils.fromWei(web3.eth.getBalance(attendee2), "ether");
