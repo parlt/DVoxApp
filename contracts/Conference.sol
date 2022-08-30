@@ -1,4 +1,5 @@
-pragma solidity ^0.4.15;
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.16 < 0.9.0;
 
 import "./Ownable.sol";
 
@@ -66,12 +67,12 @@ contract Conference is Ownable {
     // add an talk
     // trigger an event if the talk has been added
     function addTalk(
-        string _title,
-        string _location,
+        string memory _title,
+        string memory _location,
         uint _startTime,
         uint _endTime,
-        address[] _speakersAddress,
-        bytes32[] _speakersNames
+        address[] memory _speakersAddress,
+        bytes32[] memory _speakersNames
         ) public onlyOwner {
 
         // check required fields
@@ -93,7 +94,7 @@ contract Conference is Ownable {
         // store the speakers
         for (uint i = 0; i < _speakersAddress.length; i++) {
             // add or update the speaker details
-            require(_speakersAddress[i] != 0);
+            require(_speakersAddress[i] != address(0x0));
 
             speakers[_speakersAddress[i]].account = _speakersAddress[i];
             speakers[_speakersAddress[i]].fullName = _speakersNames[i];
@@ -103,7 +104,7 @@ contract Conference is Ownable {
         }
 
         // trigger the event
-        AddTalkEvent(totalTalks, _title, _startTime, _endTime);
+        emit AddTalkEvent(totalTalks, _title, _startTime, _endTime);
     }
 
     // cancel a talk
@@ -116,28 +117,28 @@ contract Conference is Ownable {
         talks[_talkId].canceled = true;
 
         // trigger the event
-        CancelTalkEvent(_talkId, talks[_talkId].title, talks[_talkId].startTime, talks[_talkId].endTime);
+        emit CancelTalkEvent(_talkId, talks[_talkId].title, talks[_talkId].startTime, talks[_talkId].endTime);
     }
 
     // check if a talk is canceled
     // returns true if the talk is canceled
-    function isTalkCanceled(uint _talkId) public constant returns (bool) {
+    function isTalkCanceled(uint _talkId) public view returns (bool) {
         return talks[_talkId].canceled;
     }
 
     // returns the number of talks (active and canceled)
-    function getNumberOfTalks() public constant returns (uint) {
+    function getNumberOfTalks() public view returns (uint) {
         return totalTalks;
     }
 
     // get an active talk and its speakers based on the Talk ID
-    function getTalk(uint _talkId) public constant returns (
-        string _title,
-        string _location,
+    function getTalk(uint _talkId) public view returns (
+        string memory _title,
+        string memory _location,
         uint _startTime,
         uint _endTime,
-        address[] _speakersAddress,
-        bytes32[] _speakersNames) {
+        address[] memory _speakersAddress,
+        bytes32[] memory _speakersNames) {
 
 
         // ensure that we have one talk related to this ID
@@ -167,7 +168,7 @@ contract Conference is Ownable {
     // fetch the list of talks
     // returns an array of talk ID
     // if onlyCanceled is true, we retrieve only canceled talks
-    function getTalks(bool onlyCanceled) public constant returns (uint[] _talksId) {
+    function getTalks(bool onlyCanceled) public view returns (uint[] memory _talksId) {
         // we check whether there is at least one talk
         require(totalTalks > 0);
 
@@ -192,7 +193,7 @@ contract Conference is Ownable {
         // shrink the array by removing gaps
         uint[] memory talkIds = new uint[](numberOfTalks);
 
-        for (i = 0; i < numberOfTalks; i++) {
+        for (uint i = 0; i < numberOfTalks; i++) {
             talkIds[i] = allTalkIds[i];
         }
 
@@ -201,13 +202,13 @@ contract Conference is Ownable {
 
     // get all talks given by a speaker identified by its address
     // returns a list of talk ID
-    function getTalksPerSpeaker(address _speakerAddress) public constant returns (uint[] _talksId) {
+    function getTalksPerSpeaker(address _speakerAddress) public view returns (uint[] memory _talksId) {
 
-        require(_speakerAddress != 0x0);
+        require(_speakerAddress != address(0x0));
 
         // fetch the speaker
         Speaker memory speaker = speakers[_speakerAddress];
-        require(speaker.account != 0x0);
+        require(speaker.account != address(0x0));
 
         // prepare the list of talks
         uint[] memory allTalkIds = new uint[](speaker.talksId.length);
@@ -231,7 +232,7 @@ contract Conference is Ownable {
         // shrink the array by removing gaps
         uint[] memory talkIds = new uint[](numberOfTalks);
 
-        for (i = 0; i < numberOfTalks; i++) {
+        for (uint i = 0; i < numberOfTalks; i++) {
             talkIds[i] = allTalkIds[i];
         }
 
@@ -247,25 +248,25 @@ contract Conference is Ownable {
     */
 
     // register an attendee to the conference
-    function register(string _fullName) public payable {
+    function register(string memory _fullName) public payable {
 
         // check required fields
         require(msg.value == REGISTRATION_PRICE);
 
         // not already registered
-        require(attendees[msg.sender].account == 0x0);
+        require(attendees[msg.sender].account == address(0));
 
         attendees[msg.sender] = Attendee(msg.sender, _fullName);
 
         // trigger the event
-        RegisterEvent(msg.sender, _fullName);
+        emit RegisterEvent(msg.sender, _fullName);
     }
 
     // check if an attendee is registered
     // returns true if the attendee is registered
-    function isRegistered(address _account) public constant returns (bool) {
+    function isRegistered(address _account) public view returns (bool) {
         Attendee memory attendee = attendees[_account];
-        if (attendee.account == 0x0) {
+        if (attendee.account ==  address(0)) {
             return false;
         }
 
@@ -282,7 +283,7 @@ contract Conference is Ownable {
     // check if a talk is open for votes
     // the grace time is +/- 15 minutes from the endTime
     // returns true if votes are open
-    function isVoteOpen(uint _talkId) public constant returns (bool) {
+    function isVoteOpen(uint _talkId) public view returns (bool) {
         Talk memory talk = talks[_talkId];
 
         if (bytes(talks[_talkId].title).length == 0) {
@@ -295,7 +296,7 @@ contract Conference is Ownable {
             return false;
         }
 
-        uint currentTime = now;
+        uint currentTime = block.timestamp;
         if (currentTime < talk.startTime) {
             // talk not started
             return false;
@@ -322,7 +323,7 @@ contract Conference is Ownable {
     // check if a vote is closed for votes
     // the grace time msut be greater than 15 minutes from the endTime
     // returns true if votes are closed
-    function isVoteClosed(uint _talkId) public constant returns (bool) {
+    function isVoteClosed(uint _talkId) public view returns (bool) {
         Talk memory talk = talks[_talkId];
 
         if (bytes(talks[_talkId].title).length == 0) {
@@ -335,7 +336,7 @@ contract Conference is Ownable {
             return false;
         }
 
-        uint currentTime = now;
+        uint currentTime = block.timestamp;
         if (currentTime < talk.startTime) {
             // talk not started
             return false;
@@ -361,9 +362,9 @@ contract Conference is Ownable {
 
     // add a vote to a talk
     // trigger an event if the vote is taking into account
-    function addVote(uint _talkId, uint _vote, string _comment) public {
+    function addVote(uint _talkId, uint _vote, string memory _comment) public {
         // ensure that the attendee is registered
-        require(attendees[msg.sender].account != 0x0);
+        require(attendees[msg.sender].account != address(0x0));
 
         // ensure that the vote is open for this talk
         require(isVoteOpen(_talkId) == true);
@@ -396,24 +397,24 @@ contract Conference is Ownable {
         allVotes[_talkId].push(vote);
         allAttendeeVotes[msg.sender].push(vote);
 
-        NewVoteEvent(_talkId, msg.sender, _vote);
+        emit NewVoteEvent(_talkId, msg.sender, _vote);
     }
 
     // get the ratings for a talk identified by its ID
     // returns the total ratings and the total of votes given to this talk
-    function getRatings(uint _talkId) public constant returns (uint _totalRatings, uint _totalVotes) {
+    function getRatings(uint _talkId) public view returns (uint _totalRatings, uint _totalVotes) {
         // do we have some votes?
         Vote[] memory votes = allVotes[_talkId];
 
         if (votes.length == 0) {
-            return;
+            return (0, 0);
         }
 
         uint totalRatings = 0;
         uint totalVotes = 0;
         for (uint i = 0; i < votes.length; i ++) {
             // skip deleted votes
-            if (votes[i].attendee != 0x0) {
+            if (votes[i].attendee != address(0x0)) {
                 totalRatings += votes[i].rating;
                 totalVotes ++;
             }
@@ -434,10 +435,10 @@ contract Conference is Ownable {
     // transfer the reward to the speaker and mark it as paid
     function withdrawReward() public {
 
-        address speaker = msg.sender;
+        address payable speaker = payable(msg.sender);
 
         // any talks for this potential speaker?
-        require(speakers[speaker].account != 0x0);
+        require(speakers[speaker].account != address(0x0));
         require(speakers[speaker].talksId.length > 0);
 
         // keep rewards
@@ -458,7 +459,7 @@ contract Conference is Ownable {
                     Vote memory vote = votes[j];
 
                     // skip deleted votes
-                    if (vote.attendee != 0x0) {
+                    if (vote.attendee != address(0x0)) {
                         totalRatings += vote.rating;
                         totalVotes ++;
                     }
@@ -480,17 +481,17 @@ contract Conference is Ownable {
         speaker.transfer(rewards);
 
         // trigger the event
-        RewardEvent(speaker, rewards);
+        emit RewardEvent(speaker, rewards);
     }
 
 
     // get the reward for a speaker identified by its address.
     // rewards are not computed for canceled talks
     // returns an array of rewards per talk
-    function getRewards(address _speaker) public constant returns (uint[] _talksId, uint256[] _rewards) {
+    function getRewards(address payable _speaker) public returns (uint[] memory _talksId, uint256[] memory _rewards) {
 
         // any talks for this potential speaker?
-        require(speakers[_speaker].account != 0x0);
+        require(speakers[_speaker].account != address(0x0));
         require(speakers[_speaker].talksId.length > 0);
 
         // prepare the output array
@@ -511,7 +512,7 @@ contract Conference is Ownable {
                     Vote memory vote = votes[j];
 
                     // skip deleted votes
-                    if (vote.attendee != 0x0) {
+                    if (vote.attendee != address(0x0)) {
                         totalRatings += vote.rating;
                         totalVotes ++;
                     }
@@ -529,97 +530,97 @@ contract Conference is Ownable {
     // let a speaker to withdraw the reward
     // a reward can be withdraw when the vote is closed
     // transfer the reward to the speaker and mark it as paid
-    function withdrawReward() public {
-
-        address speaker = msg.sender;
-
-        // any talks for this potential speaker?
-        require(speakers[speaker].account != 0x0);
-        require(speakers[speaker].talksId.length > 0);
-
-        // keep rewards
-        uint256 rewards = 0;
-
-        // retrieve ratings and votes for all talks given by the speaker
-        for (uint i = 0; i < speakers[speaker].talksId.length; i ++) {
-            uint talkId = speakers[speaker].talksId[i];
-
-            // only for talks with votes closed and not already paid
-            if (isVoteClosed(talkId) && (paidRewards[speaker][talkId] == false)) {
-                Vote[] memory votes = allVotes[talkId];
-
-                // process votes for the talks given by the speaker
-                uint totalRatings = 0;
-                uint totalVotes = 0;
-                for (uint j = 0; j < votes.length; j ++) {
-                    Vote memory vote = votes[j];
-
-                    // skip deleted votes
-                    if (vote.attendee != 0x0) {
-                        totalRatings += vote.rating;
-                        totalVotes ++;
-                    }
-                }
-
-                // add the reward
-                rewards += computeReward(totalRatings, totalVotes);
-
-                paidRewards[speaker][talkId] = true;
-            }
-        }
-
-        // any rewards to pay?
-        if (rewards == 0) {
-            return;
-        }
-
-        // reward the speaker
-        speaker.transfer(rewards);
-
-        // trigger the event
-        RewardEvent(speaker, rewards);
-    }
+//    function withdrawReward() public {
+//
+//        address speaker = msg.sender;
+//
+//        // any talks for this potential speaker?
+//        require(speakers[speaker].account != address(0x0));
+//        require(speakers[speaker].talksId.length > 0);
+//
+//        // keep rewards
+//        uint256 rewards = 0;
+//
+//        // retrieve ratings and votes for all talks given by the speaker
+//        for (uint i = 0; i < speakers[speaker].talksId.length; i ++) {
+//            uint talkId = speakers[speaker].talksId[i];
+//
+//            // only for talks with votes closed and not already paid
+//            if (isVoteClosed(talkId) && (paidRewards[speaker][talkId] == false)) {
+//                Vote[] memory votes = allVotes[talkId];
+//
+//                // process votes for the talks given by the speaker
+//                uint totalRatings = 0;
+//                uint totalVotes = 0;
+//                for (uint j = 0; j < votes.length; j ++) {
+//                    Vote memory vote = votes[j];
+//
+//                    // skip deleted votes
+//                    if (vote.attendee != address(0x0)) {
+//                        totalRatings += vote.rating;
+//                        totalVotes ++;
+//                    }
+//                }
+//
+//                // add the reward
+//                rewards += computeReward(totalRatings, totalVotes);
+//
+//                paidRewards[speaker][talkId] = true;
+//            }
+//        }
+//
+//        // any rewards to pay?
+//        if (rewards == 0) {
+//            return;
+//        }
+//
+//        // reward the speaker
+//        speaker.transfer(rewards);
+//
+//        // trigger the event
+//        emit RewardEvent(speaker, rewards);
+//    }
 
 
     // check if a vote is closed for votes
     // the grace time msut be greater than 15 minutes from the endTime
     // returns true if votes are closed
-    function isVoteClosed(uint _talkId) public constant returns (bool) {
-        Talk memory talk = talks[_talkId];
-
-        if (bytes(talks[_talkId].title).length == 0) {
-            // do not exist
-            return false;
-        }
-
-        if (talk.canceled) {
-            // not active
-            return false;
-        }
-
-        uint currentTime = now;
-        if (currentTime < talk.startTime) {
-            // talk not started
-            return false;
-        }
-
-        // computer grace time (+/- 15 minutes from the end time)
-        uint graceTime = currentTime;
-        if (currentTime > talk.endTime) {
-            graceTime = currentTime - talk.endTime;
-        }
-        else {
-            graceTime = talk.endTime - currentTime;
-        }
-
-        if (graceTime > (15 * 60)) {
-            // vote is open
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+//    function isVoteClosed(uint _talkId) public view returns (bool) {
+//        Talk memory talk = talks[_talkId];
+//
+//        if (bytes(talks[_talkId].title).length == 0) {
+//            // do not exist
+//            return false;
+//        }
+//
+//        if (talk.canceled) {
+//            // not active
+//            return false;
+//        }
+//
+//        uint currentTime = now;
+//        if (currentTime < talk.startTime) {
+//            // talk not started
+//            return false;
+//        }
+//
+//        // computer grace time (+/- 15 minutes from the end time)
+//        uint graceTime = currentTime;
+//        if (currentTime > talk.endTime) {
+//            graceTime = currentTime - talk.endTime;
+//        }
+//        else {
+//            graceTime = talk.endTime - currentTime;
+//        }
+//
+//        if (graceTime > (15 * 60)) {
+//            // vote is open
+//            return true;
+//        }
+//        else {
+//            return false;
+//        }
+//    }
 
     // computer the reward earned by a speaker
     function computeReward(uint ratings, uint votes) internal returns (uint256) {
